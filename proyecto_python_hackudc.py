@@ -6,6 +6,7 @@ import re
 from collections import defaultdict
 from datetime import datetime
 from docx import Document
+from flask import send_from_directory
 
 app = Flask(__name__)
 app.secret_key = "mi_clave_super_secreta_123"
@@ -14,14 +15,23 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 ALLOWED_EXTENSIONS = {"pdf", "txt", "docx"}
 
+def parse_pdf_date(pdf_date):
+    # Formato típico: D:YYYYMMDDHHmmSSOHH'mm'
+    match = re.search(r'D:(\d{4})(\d{2})(\d{2})', pdf_date)
+    if match:
+        return f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
+    return pdf_date  # fallback
+
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-STOPWORDS = {"el","la","los","las","de","y","en","que","a","un","una","con","por","para","del","al","se","es","son","como","más","pero","sus","le","ya","o","este","sí","porque"
-             ,"entre","cuando","sin","sobre","también","me","nos","te","lo","le","les","mi","tu","su","nuestro","vuestro","ellos","ellas","yo","tú","él","ella","nosotros","vosotros","ellos","ellas"
-             , "ser","estar","haber","tener","hacer","decir","ir","ver","dar","saber","querer","llegar","pasar","deber","poner","parecer","quedar","creer","hablar","llevar","dejar",
-             "seguir","encontrar","llamar","venir","pensar","salir","volver","tomar","conocer","vivir","sentir","trabajar","escribir","perder","producir","ocurrir","entender",
-             "no", "sí", "había", "lo", "dijo", "así", ""}
+STOPWORDS ={'a', 'acá', 'acá', 'acá', 'acá', 'ahí', 'ahí', 'ahí', 'al', 'algo', 'alguien', 'allá', 'allá', 'allá', 'allá', 'allí', 'allí', 'allí', 'allí', 'aquellos', 'aquél', 'aquélla', 'aquéllas', 'aquí', 'aquí', 'aquí', 'aquí', 'así',
+            'como', 'con', 'conocer', 'creer', 'cualquier', 'cualquiera', 'cuando', 'cuál', 'cuándo', 'cuánto', 'cómo', 'dar', 'de', 'deber', 'decir', 'dejar', 'del', 'dijo', 'dónde', 'el', 'ella', 'ellas', 'ellas', 'ellos', 'ellos',
+            'en', 'encontrar', 'encontró', 'entender', 'entre', 'era', 'era', 'es', 'esa', 'esas', 'escribir', 'ese', 'esos', 'estaba', 'estaban', 'estar', 'estaría', 'estaría', 'estaríais', 'estaríamos', 'estarían', 'estarías', 'este',
+            'esto', 'estuve', 'estuvieron', 'estuvimos', 'estuviste', 'estuvisteis', 'estuvo', 'está', 'están', 'fue', 'ha', 'haber', 'hablar', 'había', 'hacer', 'hasta', 'hoy', 'ir', 'la', 'las', 'le', 'le', 'les', 'llamar', 'llegar',
+            'llevar', 'lo', 'lo', 'los', 'me', 'mi', 'misma', 'mismas', 'mismo', 'mismos', 'muy', 'más', 'nada', 'nadie', 'no', 'nos', 'nosotros', 'nuestro', 'o', 'ocurrir', 'os', 'otra', 'otras', 'otro', 'otros', 'para', 'parecer', 'pasar',
+            'pensar', 'perder', 'pero', 'poner', 'por', 'porque', 'producir', 'que', 'quedar', 'querer', 'quién', 'qué', 'qué', 'saber', 'salir', 'se', 'seguir', 'sentir', 'ser', 'si', 'si', 'sin', 'sobre', 'son', 'su', 'sus', 'sí', 'sí',
+            'sólo', 'también', 'tan', 'tan', 'te', 'tener', 'toda', 'todo', 'tomar', 'trabajar', 'tu', 'tú', 'un', 'una', 'venir', 'ver', 'vez', 'vio', 'vio', 'vivir', 'volver', 'vosotros', 'vuestro', 'y', 'ya', 'yo', 'á', 'él'}
 
 def init_db():
     conn = sqlite3.connect("database.db")
@@ -128,10 +138,10 @@ def upload():
                 texto += p.text + "\n"
 
         
-        titulo = metadatos.get('Title', archivo.filename)
-        autor = metadatos.get('Author', 'Desconocido')
-        fecha_creacion = metadatos.get('CreationDate', '')
-        
+        titulo = metadatos.get('/Title', archivo.filename)
+        autor = metadatos.get('/Author', 'Desconocido')
+        fecha_creacion_raw = metadatos.get('/CreationDate', '')
+        fecha_creacion = parse_pdf_date(fecha_creacion_raw)
         keywords_str = ", ".join(extract_keywords(texto))
 
         conn = sqlite3.connect("database.db")
@@ -147,24 +157,41 @@ def upload():
     return redirect(url_for("index"))
 
 
-@app.route("/buscar", methods=["POST"])
+@app.route("/buscar", methods=["GET"])
 def buscar():
-    palabra = "%" + request.form["palabra"] + "%"
+    titulo = request.args.get("titulo")
+    autor = request.args.get("autor")
+    fecha = request.args.get("fecha")
+
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
-    cursor.execute("""
+
+    query = """
         SELECT id, nombre_archivo, fecha_subida, titulo, autor, keywords
         FROM documentos
-        WHERE nombre_archivo LIKE ?
-           OR titulo LIKE ? 
-           OR autor LIKE ? 
-           OR keywords LIKE ?
-    """, (palabra, palabra, palabra, palabra))
-    
+        WHERE 1=1
+    """
+    parametros = []
+
+    if titulo:
+        query += " AND titulo LIKE ?"
+        parametros.append(f"%{titulo}%")
+
+    if autor:
+        query += " AND autor LIKE ?"
+        parametros.append(f"%{autor}%")
+
+    if fecha:
+        query += " AND fecha_subida LIKE ?"
+        parametros.append(f"%{fecha}%")
+
+    query += " ORDER BY id DESC"
+
+    cursor.execute(query, parametros)
     resultados = cursor.fetchall()
     conn.close()
-    return render_template("resultados.html", resultados=resultados, palabra=request.form["palabra"])
 
+    return render_template("resultados.html", resultados=resultados)
 
 @app.route("/eliminar_multiple", methods=["POST"])
 def eliminar_multiple():
@@ -185,6 +212,10 @@ def eliminar_multiple():
     conn.close()
     flash("Archivos eliminados.")
     return redirect(url_for("index"))
+
+@app.route("/archivo/<nombre>")
+def ver_archivo(nombre):
+    return send_from_directory(UPLOAD_FOLDER, nombre)
 
 if __name__ == "__main__":
     init_db()

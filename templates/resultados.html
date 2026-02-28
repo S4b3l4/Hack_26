@@ -13,32 +13,53 @@
         </div>
     {% elif resultados %}
         <form action="/eliminar_multiple" method="POST" onsubmit="return confirmarEliminacion()">
-            
+
             <div class="selector-masivo">
-                <label>
-                    <input type="checkbox" onclick="selectAll(this)"> <strong>Seleccionar todos</strong>
-                </label>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <label class="contenedor-checkbox">
+                        <input type="checkbox" onclick="selectAll(this)">
+                        <span class="checkmark"></span>
+                    </label>
+                    <strong>Seleccionar todos</strong>
+                </div>
+
+                <button type="submit" class="boton-eliminar" style="cursor: pointer; margin: 0;">
+                    Eliminar seleccionados
+                </button>
             </div>
 
             <div class="contenedor-resultados">
-                {% for doc in resultados %}
-                    <div class="resultado-item">
-                        <label class="contenedor-checkbox">
-                            <input type="checkbox" name="ids_a_eliminar" value="{{ doc[0] }}" class="fila-checkbox">
-                            <span class="checkmark"></span>
-                        </label>
-                        
-                        <div>
-                            <h3>{{ doc[1] }}</h3>
-                            <p>Subido el: {{ doc[2] }}</p>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
+                <div class="grid-resultados">
+                    {% for doc in resultados %}
+                        {% set extension = doc[1].split('.')[-1].lower() %}
+                        <div class="resultado-item">
+                            
+                            <label class="contenedor-checkbox">
+                                <input type="checkbox" name="ids_a_eliminar" value="{{ doc[0] }}">
+                                <span class="checkmark"></span>
+                            </label>
+                                    
+                            <div>
+                                <h3>
+                                    {% if extension == 'pdf' or extension == 'txt' %}
+                                        <a href="{{ url_for('ver_archivo', nombre=doc[1]) }}" target="_blank">
+                                            {{ doc[1] }}
+                                        </a>
+                                    {% else %}
+                                        <!--DOCX solo para descargar-->
+                                        <a href="{{ url_for('descargar_archivo', nombre=doc[1]) }}">
+                                            {{ doc[1] }}
+                                        </a>
+                                    {% endif %}
+                                </h3>
+                                <p>Subido el: {{ doc[2] }}</p>
+                            </div>
 
-            <button type="submit" class="boton-eliminar" style="cursor: pointer;">
-                Eliminar seleccionados
-            </button>
+                        </div>
+                    {% endfor %}
+            </div>
+        </div>
+
         </form>
     {% else %}
         <div class="mensaje-alerta">
@@ -50,21 +71,17 @@
     <a href="/" class="boton-volver">Volver al buscador</a>
 
     <script>
-        //Función para seleccionar todos
         function selectAll(source) {
             const checkboxes = document.querySelectorAll('input[name="ids_a_eliminar"]');
             checkboxes.forEach(cb => cb.checked = source.checked);
         }
 
-        //Función para confirmar antes de enviar
         function confirmarEliminacion() {
             const marcados = document.querySelectorAll('input[name="ids_a_eliminar"]:checked');
-            
             if (marcados.length === 0) {
                 alert("¡No has seleccionado ningún archivo!");
                 return false;
             }
-            
             return confirm("¿Estás seguro de que quieres borrar " + marcados.length + " archivos?");
         }
     </script>
