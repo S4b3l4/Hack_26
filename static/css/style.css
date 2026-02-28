@@ -1,0 +1,81 @@
+@font-face {
+    font-family: 'HocusPocus'; /* Así es como la llamaremos en CSS */
+    src: url('../fonts/hocuspocus.ttf') format('truetype'); /* Ajusta el nombre del archivo si es distinto */
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Estilo fondo */
+body {
+    font-family: 'HocusPocus', sans-serif;
+    background-color: #6080af; /* Un gris-azulado muy suave */
+    color: #333;
+    margin: 0;
+    min-height: 100vh;
+    /* Esto es lo que pone TODO en el medio */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-image: url('../image/la-gran-ola-y-la-noche-estrellada_2560x1660_xtrafondos.com.jpg');    background-size: cover;       /* Ajusta la imagen para cubrir toda el área sin deformarse */
+    background-position: center;  /* Mantiene el centro de la imagen siempre a la vista */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    background-attachment: fixed; /* Hace que el fondo no se mueva al bajar por la página */
+}
+
+h1 {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Sombra para que destaque sobre el fondo */
+}
+
+/* Contenedor principal con efecto cristal */
+form {
+    background: rgba(255, 255, 255, 0.2); /* Blanco con 20% de opacidad */
+    backdrop-filter: blur(10px);          /* Desenfoque del fondo */
+    -webkit-backdrop-filter: blur(10px);  /* Compatibilidad para Safari */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Borde sutil */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    width: 300px;
+    text-align: center;
+}
+
+/* Inputs translucidos */
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    /* Un poco más opaco que el formulario para que se distinga */
+    background: rgba(255, 255, 255, 0.6); 
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    box-sizing: border-box;
+    color: #333; /* Texto oscuro para que se lea bien */
+}
+
+button {
+    background-color: #6366f1; /* Un color azul eléctrico moderno */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #4f46e5;
+}
+
+/* Resultados */
+.resultado-item {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 10px;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}

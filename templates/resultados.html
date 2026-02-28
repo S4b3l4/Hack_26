@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resultados de búsqueda</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Resultados de búsqueda para "{{ palabra }}"</h1>
+
+    {% if resultados %}
+        <ul>
+        {% for doc in resultados %}
+            <li>
+                <strong>{{ doc[1] }}</strong> — Subido el {{ doc[2] }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No se encontraron resultados.</p>
+    {% endif %}
+
+    <a href="{{ url_for('index') }}">Volver</a>
+</body>
+</html>
