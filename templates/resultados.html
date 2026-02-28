@@ -1,24 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Resultados de búsqueda</title>
+    <title>Resultados</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Resultados de búsqueda para "{{ palabra }}"</h1>
+    <h1>Resultados</h1>
 
-    {% if resultados %}
-        <ul>
-        {% for doc in resultados %}
-            <li>
-                <strong>{{ doc[1] }}</strong> — Subido el {{ doc[2] }}
-            </li>
-        {% endfor %}
-        </ul>
+    {% if mensaje %}
+        <div class="mensaje-alerta">
+            <h2>{{ mensaje }}</h2>
+        </div>
+    {% elif resultados %}
+        <form action="/eliminar_multiple" method="POST" onsubmit="return confirmarEliminacion()">
+            
+            <div class="selector-masivo">
+                <label>
+                    <input type="checkbox" onclick="selectAll(this)"> <strong>Seleccionar todos</strong>
+                </label>
+            </div>
+
+            <div class="contenedor-resultados">
+                {% for doc in resultados %}
+                    <div class="resultado-item">
+                        <label class="contenedor-checkbox">
+                            <input type="checkbox" name="ids_a_eliminar" value="{{ doc[0] }}" class="fila-checkbox">
+                            <span class="checkmark"></span>
+                        </label>
+                        
+                        <div>
+                            <h3>{{ doc[1] }}</h3>
+                            <p>Subido el: {{ doc[2] }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="boton-eliminar" style="cursor: pointer;">
+                Eliminar seleccionados
+            </button>
+        </form>
     {% else %}
-        <p>No se encontraron resultados.</p>
+        <div class="mensaje-alerta">
+            <h2>No se encontraron archivos con ese nombre.</h2>
+        </div>
     {% endif %}
 
-    <a href="{{ url_for('index') }}">Volver</a>
+    <br>
+    <a href="/" class="boton-volver">Volver al buscador</a>
+
+    <script>
+        //Función para seleccionar todos
+        function selectAll(source) {
+            const checkboxes = document.querySelectorAll('input[name="ids_a_eliminar"]');
+            checkboxes.forEach(cb => cb.checked = source.checked);
+        }
+
+        //Función para confirmar antes de enviar
+        function confirmarEliminacion() {
+            const marcados = document.querySelectorAll('input[name="ids_a_eliminar"]:checked');
+            
+            if (marcados.length === 0) {
+                alert("¡No has seleccionado ningún archivo!");
+                return false;
+            }
+            
+            return confirm("¿Estás seguro de que quieres borrar " + marcados.length + " archivos?");
+        }
+    </script>
 </body>
 </html>

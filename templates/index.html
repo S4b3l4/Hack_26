@@ -1,31 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Buscador de Documentos</title>
+    <title>Invocador de Documentos</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-    <!-- Mensajes de flash -->
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul style="color: rgb(141, 3, 3);">
-          {% for msg in messages %}
-            <li>{{ msg }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+<h1>Invocador de documentos</h1>
+    
+    <div class="contenedor-principal">
 
-    <h1>Buscar documento</h1>
-    <form action="/buscar" method="POST">
-        <input type="text" name="palabra" placeholder="Escribe palabra clave">
-        <button type="submit">Buscar</button>
-    </form>
-
-    <h1>Subir PDF</h1>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <input type="file" name="archivo">
-        <button type="submit">Subir PDF</button>
-    </form>
-</body>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <input type="file" name="archivo" multiple accept=".pdf, .txt, .docx">
+            <button type="submit">Subir archivo</button>
+        </form>
+        
+        <form action="/buscar" method="POST">
+            <input type="text" name="palabra" placeholder="Escribe palabra clave">
+            <button type="submit">Buscar</button>
+        </form>
+        
+    </div>
 </html>
