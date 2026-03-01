@@ -48,6 +48,10 @@ def init_db():
             fecha_creacion TEXT
         )
     """)
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_nombre_archivo 
+        ON documentos (nombre_archivo)
+    """)
     conn.commit()
     conn.close()
 
@@ -101,7 +105,7 @@ def upload():
     archivos = request.files.getlist("archivo")
 
     if not archivos or archivos[0].filename == '':
-        flash("No se ha seleccionado ningún archivo")
+        flash("Sin seleccionar")
         return redirect(url_for("index"))
 
     for archivo in archivos:
@@ -157,41 +161,26 @@ def upload():
     return redirect(url_for("index"))
 
 
-@app.route("/buscar", methods=["GET"])
+@app.route("/buscar", methods=["POST"])
 def buscar():
-    titulo = request.args.get("titulo")
-    autor = request.args.get("autor")
-    fecha = request.args.get("fecha")
-
+    palabra = "%" + request.form["palabra"] + "%"
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
-
-    query = """
+    cursor.execute("""
         SELECT id, nombre_archivo, fecha_subida, titulo, autor, keywords
         FROM documentos
-        WHERE 1=1
-    """
-    parametros = []
-
-    if titulo:
-        query += " AND titulo LIKE ?"
-        parametros.append(f"%{titulo}%")
-
-    if autor:
-        query += " AND autor LIKE ?"
-        parametros.append(f"%{autor}%")
-
-    if fecha:
-        query += " AND fecha_subida LIKE ?"
-        parametros.append(f"%{fecha}%")
-
-    query += " ORDER BY id DESC"
-
-    cursor.execute(query, parametros)
+        WHERE nombre_archivo LIKE ?
+           OR titulo LIKE ? 
+           OR autor LIKE ? 
+           OR keywords LIKE ?
+           OR fecha_subida LIKE ?
+           OR fecha_creacion LIKE ?
+    """, (palabra, palabra, palabra, palabra, palabra, palabra))
+    
     resultados = cursor.fetchall()
     conn.close()
+    return render_template("resultados.html", resultados=resultados, palabra=request.form["palabra"])
 
-    return render_template("resultados.html", resultados=resultados)
 
 @app.route("/eliminar_multiple", methods=["POST"])
 def eliminar_multiple():

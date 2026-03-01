@@ -47,7 +47,7 @@
                                         </a>
                                     {% else %}
                                         <!--DOCX solo para descargar-->
-                                        <a href="{{ url_for('descargar_archivo', nombre=doc[1]) }}">
+                                        <a href="{{ url_for('ver_archivo', nombre=doc[1]) }}">
                                             {{ doc[1] }}
                                         </a>
                                     {% endif %}

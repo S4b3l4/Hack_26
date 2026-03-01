@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Invocador de Documentos</title>
+    <title>GateTEXT</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Invocador de documentosOS</h1>
+    <h1>Invocador de documentos</h1>
     
     <div class="contenedor-principal">
 
@@ -14,10 +14,8 @@
             <button type="submit">Subir archivo</button>
         </form>
         
-        <form action="/buscar" method="GET">
-            <input type="text" name="titulo" placeholder="Buscar por título">
-            <input type="text" name="autor" placeholder="Buscar por autor">
-            <input type="text" name="fecha" placeholder="Buscar por fecha (YYYY-MM-DD)">
+        <form action="/buscar" method="POST">
+            <input type="text" name="palabra" placeholder="Escribe palabra clave">
             <button type="submit">Buscar</button>
         </form>
         
