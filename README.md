@@ -13,7 +13,8 @@ Si trabajas en equipo o desde varios dispositivos podrás importar o incluso eli
 
 Por último, su gran estética, se mezcla con la nostalgia de la fuente "Press Start 2P" y el pixel art retro, crean una experiencia visual única y envolvente. Además, es totalmente responsive, así que se ve de lujo tanto en tu monitor grande como en la pantalla de tu móvil. Es la mezcla perfecta entre un sistema potente y un diseño con mucha personalidad, ideal para organizar tus archivos con estilo. 🎮
 
-
+# De que estamos más orgullosas 😁✌️:
+Estamos especialmente orgullosas de haber desarrollado este proyecto desde cero, logrando una solución funcional, bien estructurada y fácil de usar. Destacamos el gran trabajo en equipo, el aprendizaje de nuevas herramientas desconocidas para nosotras (html, css, SQLite) y la capacidad de resolver los retos técnicos que surgieron durante el desarrollo (extracción de los metadatos, desarrollo de algoritmos...).
 
 # LICENCIA:          GNU General Public License v3.0
 
