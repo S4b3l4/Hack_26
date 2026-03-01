@@ -7,13 +7,18 @@ from collections import defaultdict
 from datetime import datetime
 from docx import Document
 from flask import send_from_directory
+from flask import session
 
 app = Flask(__name__)
 app.secret_key = "mi_clave_super_secreta_123"
 
+@app.context_processor
+def inject_user():
+    return dict(session=session)
+
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-ALLOWED_EXTENSIONS = {"pdf", "txt", "docx"}
+ALLOWED_EXTENSIONS = {"pdf", "txt", "docx", "jpg", "jpeg", "xls", "xlsx"}
 
 def parse_pdf_date(pdf_date):
     # Formato típico: D:YYYYMMDDHHmmSSOHH'mm'
@@ -51,6 +56,13 @@ def init_db():
     cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_nombre_archivo 
         ON documentos (nombre_archivo)
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT
+        )
     """)
     conn.commit()
     conn.close()
@@ -103,7 +115,9 @@ def index():
 @app.route("/upload", methods=["POST"])
 def upload():
     archivos = request.files.getlist("archivo")
-
+    if "usuario" not in session:
+        flash("Debes iniciar sesión para subir archivos")
+        return redirect(url_for("login"))
     if not archivos or archivos[0].filename == '':
         flash("Sin seleccionar")
         return redirect(url_for("index"))
@@ -141,9 +155,20 @@ def upload():
             for p in doc.paragraphs:
                 texto += p.text + "\n"
 
+        #JPEG/JPG
+        elif extension in ["jpg", "jpeg"]:
+            # Aquí normalmente no hay texto, pero podrías usar OCR con pytesseract si quieres
+            texto = f"[Archivo de imagen: {archivo.filename}]"
+
+        #Excel XLS/XLSX
+        elif extension in ["xls", "xlsx"]:
+            import pandas as pd
+            df = pd.read_excel(ruta)
+            texto = df.to_string()  # convierte toda la hoja a texto
+
         
         titulo = metadatos.get('/Title', archivo.filename)
-        autor = metadatos.get('/Author', 'Desconocido')
+        autor = session.get("usuario", "Desconocido")
         fecha_creacion_raw = metadatos.get('/CreationDate', '')
         fecha_creacion = parse_pdf_date(fecha_creacion_raw)
         keywords_str = ", ".join(extract_keywords(texto))
@@ -205,6 +230,63 @@ def eliminar_multiple():
 @app.route("/archivo/<nombre>")
 def ver_archivo(nombre):
     return send_from_directory(UPLOAD_FOLDER, nombre)
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    # Si ya está logueado, no puede volver a loguearse
+    if "usuario" in session:
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT * FROM usuarios WHERE username=? AND password=?",
+            (username, password)
+        )
+        user = cursor.fetchone()
+        conn.close()
+
+        if user:
+            session["usuario"] = username
+            return redirect(url_for("index"))
+        else:
+            flash("Credenciales incorrectas")
+
+    return render_template("login.html")
+
+@app.route("/registro", methods=["GET", "POST"])
+def registro():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(
+                "INSERT INTO usuarios (username, password) VALUES (?, ?)",
+                (username, password)
+            )
+            conn.commit()
+            conn.close()
+            flash("Usuario creado correctamente. Ahora puedes iniciar sesión.")
+            return redirect(url_for("login"))
+
+        except sqlite3.IntegrityError:
+            conn.close()
+            flash("Ese usuario ya existe")
+
+    return render_template("registro.html")
+
+@app.route("/logout")
+def logout():
+    session.pop("usuario", None)
+    return redirect(url_for("index"))
 
 if __name__ == "__main__":
     init_db()

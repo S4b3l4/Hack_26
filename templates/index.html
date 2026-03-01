@@ -6,11 +6,18 @@
 </head>
 <body>
     <h1>Invocador de documentos</h1>
+    {% if session.usuario %}
+        Bienvenido {{ session.usuario }}
+        <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+    {% else %}
+        <a href="{{ url_for('login') }}">Iniciar sesión</a>
+        <a href="{{ url_for('registro') }}">Registrarse</a>
+    {% endif %}
     
     <div class="contenedor-principal">
 
         <form action="/upload" method="POST" enctype="multipart/form-data">
-            <input type="file" name="archivo" multiple accept=".pdf, .txt, .docx">
+            <input type="file" name="archivo" multiple accept=".pdf, .txt, .docx, .jpg, .jpeg, .xls, .xlsx">
             <button type="submit">Subir archivo</button>
         </form>
         

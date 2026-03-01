@@ -41,13 +41,19 @@
                                     
                             <div>
                                 <h3>
-                                    {% if extension == 'pdf' or extension == 'txt' %}
+                                    {% if extension in ['pdf', 'txt', 'jpg', 'jpeg'] %}
+                                        <!-- Se pueden abrir en el navegador -->
                                         <a href="{{ url_for('ver_archivo', nombre=doc[1]) }}" target="_blank">
                                             {{ doc[1] }}
                                         </a>
+                                    {% elif extension in ['docx', 'xlsx'] %}
+                                        <!-- Solo descargar -->
+                                        <a href="{{ url_for('ver_archivo', nombre=doc[1]) }}" download>
+                                            {{ doc[1] }}
+                                        </a>
                                     {% else %}
-                                        <!--DOCX solo para descargar-->
-                                        <a href="{{ url_for('ver_archivo', nombre=doc[1]) }}">
+                                        <!-- Otros archivos, por si acaso -->
+                                        <a href="{{ url_for('ver_archivo', nombre=doc[1]) }}" download>
                                             {{ doc[1] }}
                                         </a>
                                     {% endif %}
