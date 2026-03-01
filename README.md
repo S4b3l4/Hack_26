@@ -12,3 +12,5 @@ Hemos usado Flask para que todo corra fluido y librerías como pdfplumber y pyth
 Si trabajas en equipo o desde varios dispositivos podrás importar o incluso eliminar de forma individual/conjunta los elementos de nuestra base de datos. Esto le aporta dinamismo y personalización. Además, tras listar los archivos es posible acceder a su contenido mediante una visualización en el propio navegador (pdf) o descargándolos (doc). 💃🎨
 
 Por último, su gran estética, se mezcla con la nostalgia de la fuente "Press Start 2P" y el pixel art retro, crean una experiencia visual única y envolvente. Además, es totalmente responsive, así que se ve de lujo tanto en tu monitor grande como en la pantalla de tu móvil. Es la mezcla perfecta entre un sistema potente y un diseño con mucha personalidad, ideal para organizar tus archivos con estilo. 🎮
+
+---------------------------------------------------------------------------------------------------------------------------------------
