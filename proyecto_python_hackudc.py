@@ -188,24 +188,47 @@ def upload():
 
 @app.route("/buscar", methods=["POST"])
 def buscar():
-    palabra = "%" + request.form["palabra"] + "%"
+    palabra = request.form["palabra"]
+    filtro = request.form.get("filtro", "todos")
+    termino = "%" + palabra + "%"  # para la búsqueda con LIKE
+
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT id, nombre_archivo, fecha_subida, titulo, autor, keywords
-        FROM documentos
-        WHERE nombre_archivo LIKE ?
-           OR titulo LIKE ? 
-           OR autor LIKE ? 
-           OR keywords LIKE ?
-           OR fecha_subida LIKE ?
-           OR fecha_creacion LIKE ?
-    """, (palabra, palabra, palabra, palabra, palabra, palabra))
-    
+
+    if filtro == "usuario":
+        # Verificar que el usuario haya iniciado sesión
+        if "usuario" not in session:
+            flash("Debes iniciar sesión para buscar tus documentos.")
+            return redirect(url_for("login"))
+        usuario_actual = session["usuario"]
+
+        # Consulta restringida al autor actual
+        cursor.execute("""
+            SELECT id, nombre_archivo, fecha_subida, titulo, autor, keywords
+            FROM documentos
+            WHERE autor = ?
+              AND (nombre_archivo LIKE ?
+                   OR titulo LIKE ?
+                   OR keywords LIKE ?
+                   OR fecha_subida LIKE ?
+                   OR fecha_creacion LIKE ?)
+        """, (usuario_actual, termino, termino, termino, termino, termino))
+
+    else:  # "todos" - búsqueda global
+        cursor.execute("""
+            SELECT id, nombre_archivo, fecha_subida, titulo, autor, keywords
+            FROM documentos
+            WHERE nombre_archivo LIKE ?
+               OR titulo LIKE ?
+               OR autor LIKE ?
+               OR keywords LIKE ?
+               OR fecha_subida LIKE ?
+               OR fecha_creacion LIKE ?
+        """, (termino, termino, termino, termino, termino, termino))
+
     resultados = cursor.fetchall()
     conn.close()
-    return render_template("resultados.html", resultados=resultados, palabra=request.form["palabra"])
-
+    return render_template("resultados.html", resultados=resultados, palabra=palabra)
 
 @app.route("/eliminar_multiple", methods=["POST"])
 def eliminar_multiple():

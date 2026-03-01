@@ -21,10 +21,15 @@
             <button type="submit">Subir archivo</button>
         </form>
         
+        <!-- Dentro del bloque que contiene el formulario de búsqueda -->
         <form action="/buscar" method="POST">
-            <input type="text" name="palabra" placeholder="Escribe palabra clave">
-            <button type="submit">Buscar</button>
-        </form>
+        <select name="filtro">
+            <option value="todos">Todos</option>
+            <option value="usuario">Usuario</option>
+        </select>
+        <input type="text" name="palabra" placeholder="Escribe palabra clave" required>
+        <button type="submit">Buscar</button>
+    </form>
         
     </div>
 </body>
