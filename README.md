@@ -14,7 +14,8 @@ Si trabajas en equipo o desde varios dispositivos podrás importar o incluso eli
 Por último, su gran estética, se mezcla con la nostalgia de la fuente "Press Start 2P" y el pixel art retro, crean una experiencia visual única y envolvente. Además, es totalmente responsive, así que se ve de lujo tanto en tu monitor grande como en la pantalla de tu móvil. Es la mezcla perfecta entre un sistema potente y un diseño con mucha personalidad, ideal para organizar tus archivos con estilo. 🎮
 
 
-LICENCIA: GNU General Public License v3.0
+
+# LICENCIA:          GNU General Public License v3.0
 
 Es una licencia permisiva, simple y muy utilizada. Permite usar, modificar y distribuir el software incluso con fines comerciales, 
 con muy pocas restricciones.
