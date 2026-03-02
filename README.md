@@ -19,7 +19,7 @@ Estamos especialmente orgullosas de haber desarrollado este proyecto desde cero,
 # LICENCIA:          GNU General Public License v3.0
 
 Es una licencia permisiva, simple y muy utilizada. Permite usar, modificar y distribuir el software incluso con fines comerciales, 
-con muy pocas restricciones.
+con muy pocas restricciones, entre ellas que aquel que use el archivo también use una licencia libre.
 
 La MIT License incluye permisos como uso comercial, modificación, distribución y uso privado porque es una licencia permisiva diseñada 
 para dar máxima libertad a quienes utilizan el software; la única condición obligatoria es conservar el aviso de licencia y copyright 
